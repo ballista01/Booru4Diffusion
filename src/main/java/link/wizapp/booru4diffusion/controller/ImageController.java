@@ -21,7 +21,7 @@ import java.util.List;
 public class ImageController {
 
     @Autowired
-    IImageTgw imageTgw = new ImageTgw();
+    IImageTgw imageTgw;
     private static final Logger log = LoggerFactory.getLogger(ImageController.class);
 
     @GetMapping("/images")
