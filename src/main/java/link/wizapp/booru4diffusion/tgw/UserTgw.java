@@ -18,6 +18,7 @@ public class UserTgw implements IUserTgw{
     @Override
     public User findByUsername(String username) {
         try {
+            // TODO: fill user roles field.
             User user = jdbcTemplate.queryForObject("SELECT * FROM users WHERE username=?",
                     BeanPropertyRowMapper.newInstance(User.class), username);
             return user;

@@ -19,6 +19,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+ // Springboot 3 only
 import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 
 @Configuration
@@ -27,6 +28,7 @@ import static org.springframework.security.web.util.matcher.AntPathRequestMatche
         // jsr250Enabled = true,
         prePostEnabled = true)
 public class WebSecurityConfig {
+
     @Autowired
     UserDetailsServiceImpl userDetailsService;
 
@@ -42,14 +44,14 @@ public class WebSecurityConfig {
 //    public void configure(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
 //        authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
 //    }
-   public DaoAuthenticationProvider authenticationProvider() {
+    public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
 
         authProvider.setUserDetailsService(userDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());
 
         return authProvider;
-   }
+    }
 
 //    @Bean
 //    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -72,8 +74,12 @@ public class WebSecurityConfig {
         http.cors().and().csrf().disable()
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+                // For Springboot 3
                 .authorizeRequests().requestMatchers(antMatcher("/api/auth/**")).permitAll()
                 .requestMatchers(antMatcher("/api/test/**")).permitAll()
+//                // For Springboot 2.x
+//                .authorizeRequests().antMatchers("/api/auth/**").permitAll()
+//                .antMatchers("/api/test/**").permitAll()
                 .anyRequest().authenticated();
 
         http.authenticationProvider(authenticationProvider());
