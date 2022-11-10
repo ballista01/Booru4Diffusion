@@ -1,6 +1,7 @@
 package link.wizapp.booru4diffusion.model;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class User {
@@ -61,5 +62,15 @@ public class User {
 
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
+    }
+
+    public void setRoles(List<Role> rolesList) {
+        roles.addAll(rolesList);
+    }
+
+    public void setRoles(Role[] rolesArr){
+        for(Role role: rolesArr){
+            roles.add(role);
+        }
     }
 }

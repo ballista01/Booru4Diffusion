@@ -18,9 +18,16 @@ public class UserTgw implements IUserTgw{
     @Override
     public User findByUsername(String username) {
         try {
-            // TODO: fill user roles field.
-            User user = jdbcTemplate.queryForObject("SELECT * FROM users WHERE username=?",
-                    BeanPropertyRowMapper.newInstance(User.class), username);
+            User user = jdbcTemplate.queryForObject(
+                    """
+SELECT users.id, username, email, password, ARRAY_AGG(roles.name) AS roles_name, ARRAY_AGG(roles.id) AS roles_id
+FROM users
+LEFT JOIN user_roles ON users.id = user_roles.user_id
+LEFT JOIN roles ON user_roles.role_id = roles.id
+WHERE username=?
+GROUP BY users.id;
+""",
+                    new UserRowMapper(), username);
             return user;
         } catch (IncorrectResultSizeDataAccessException e){
             return null;
@@ -29,11 +36,7 @@ public class UserTgw implements IUserTgw{
 
     @Override
     public Boolean existsByUsername(String username) {
-        if(findByUsername(username) != null){
-            return true;
-        } else {
-            return false;
-        }
+        return findByUsername(username) != null;
     }
 
     @Override
