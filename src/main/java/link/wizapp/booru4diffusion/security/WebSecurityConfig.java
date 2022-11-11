@@ -1,5 +1,6 @@
 package link.wizapp.booru4diffusion.security;
 
+import link.wizapp.booru4diffusion.model.ERole;
 import link.wizapp.booru4diffusion.security.jwt.AuthEntryPointJwt;
 import link.wizapp.booru4diffusion.security.jwt.AuthTokenFilter;
 import link.wizapp.booru4diffusion.security.services.UserDetailsServiceImpl;
@@ -75,8 +76,10 @@ public class WebSecurityConfig {
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 // For Springboot 3
-                .authorizeRequests().requestMatchers(antMatcher("/api/auth/**")).permitAll()
+                .authorizeRequests()
+                .requestMatchers(antMatcher("/api/auth/**")).permitAll()
                 .requestMatchers(antMatcher("/api/test/**")).permitAll()
+                .requestMatchers(antMatcher("/api/images/**")).permitAll()
 //                // For Springboot 2.x
 //                .authorizeRequests().antMatchers("/api/auth/**").permitAll()
 //                .antMatchers("/api/test/**").permitAll()

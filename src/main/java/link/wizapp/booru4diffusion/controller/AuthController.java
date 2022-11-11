@@ -9,8 +9,8 @@ import link.wizapp.booru4diffusion.payload.response.JwtResponse;
 import link.wizapp.booru4diffusion.payload.response.MessageResponse;
 import link.wizapp.booru4diffusion.security.jwt.JwtUtils;
 import link.wizapp.booru4diffusion.security.services.UserDetailsImpl;
-import link.wizapp.booru4diffusion.tgw.IRoleTgw;
-import link.wizapp.booru4diffusion.tgw.IUserTgw;
+import link.wizapp.booru4diffusion.tgw.IRoleTdg;
+import link.wizapp.booru4diffusion.tgw.IUserTdg;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -35,10 +35,10 @@ public class AuthController {
     AuthenticationManager authenticationManager;
 
     @Autowired
-    IUserTgw userTgw;
+    IUserTdg userTgw;
 
     @Autowired
-    IRoleTgw roleTgw;
+    IRoleTdg roleTgw;
 
     @Autowired
     PasswordEncoder encoder;

@@ -4,7 +4,7 @@ import link.wizapp.booru4diffusion.model.Image;
 
 import java.util.List;
 
-public interface IImageTgw {
+public interface IImageTdg {
     int save(Image book);
 
     int update(Image book);

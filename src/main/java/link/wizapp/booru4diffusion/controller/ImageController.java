@@ -1,16 +1,15 @@
 package link.wizapp.booru4diffusion.controller;
 
 import link.wizapp.booru4diffusion.model.Image;
-import link.wizapp.booru4diffusion.tgw.IImageTgw;
-import link.wizapp.booru4diffusion.tgw.ImageTgw;
+import link.wizapp.booru4diffusion.tgw.IImageTdg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -18,7 +17,7 @@ import java.util.List;
 public class ImageController {
 
     @Autowired
-    IImageTgw imageTgw;
+    IImageTdg imageTdg;
     private static final Logger log = LoggerFactory.getLogger(ImageController.class);
 
     @GetMapping("")
@@ -27,9 +26,9 @@ public class ImageController {
             List<Image> images;
 
             if (title == null)
-                images = imageTgw.findAll();
+                images = imageTdg.findAll();
             else
-                images = imageTgw.findByTitleContaining(title);
+                images = imageTdg.findByTitleContaining(title);
 
             if (images.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -44,7 +43,7 @@ public class ImageController {
     @GetMapping("/{id}")
     public ResponseEntity<Image> getImageById(@PathVariable("id") long id) {
         try {
-            Image image = imageTgw.findById(id);
+            Image image = imageTdg.findById(id);
             if(image != null){
                 return new ResponseEntity<>(image, HttpStatus.OK);
             }else{
@@ -58,7 +57,7 @@ public class ImageController {
     @GetMapping("/published")
     public ResponseEntity<List<Image>> getPublishedImages(){
         try {
-            List<Image> images = imageTgw.findByPublished(true);
+            List<Image> images = imageTdg.findByPublished(true);
             if(images.isEmpty()){
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             } else {
@@ -70,9 +69,10 @@ public class ImageController {
     }
 
     @PostMapping("")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     public ResponseEntity<String> createImage(@RequestBody Image image){
         try {
-            imageTgw.save(new Image(image.getTitle(), image.getDescription(), false));
+            imageTdg.save(new Image(image.getTitle(), image.getDescription(), false));
             return new ResponseEntity<>("Image created successfully", HttpStatus.OK);
         } catch(Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -82,13 +82,13 @@ public class ImageController {
     @PutMapping("{id}")
     public ResponseEntity<String> updateImage(@PathVariable("id") long id, @RequestBody Image image){
         try {
-            Image imageToUpdate = imageTgw.findById(image.getId());
+            Image imageToUpdate = imageTdg.findById(image.getId());
 
             if(imageToUpdate != null){
                 imageToUpdate.setTitle(image.getTitle());
                 imageToUpdate.setDescription(image.getDescription());
                 imageToUpdate.setPublished(image.isPublished());
-                imageTgw.update(imageToUpdate);
+                imageTdg.update(imageToUpdate);
                 return new ResponseEntity<>("Image updated successfully!", HttpStatus.OK);
             } else {
                 return new ResponseEntity<>("Cannot find image with id: " + id, HttpStatus.NOT_FOUND);
@@ -101,7 +101,7 @@ public class ImageController {
     @DeleteMapping("{id}")
     public ResponseEntity<String> deleteImage(@PathVariable("id") long id){
         try {
-            int res = imageTgw.deleteById(id);
+            int res = imageTdg.deleteById(id);
             if(res == 0){
                 return new ResponseEntity<>("Cannot find image with id: " + id, HttpStatus.NOT_FOUND);
             } else {
@@ -115,7 +115,7 @@ public class ImageController {
     @DeleteMapping("")
     public ResponseEntity<String> deleteAllImages(){
         try{
-            int res = imageTgw.deleteAll();
+            int res = imageTdg.deleteAll();
             if(res == 0){
                 return new ResponseEntity<>("All images successfully deleted!", HttpStatus.OK);
             }else {

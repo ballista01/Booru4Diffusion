@@ -14,7 +14,7 @@ import java.sql.Statement;
 import java.util.Objects;
 
 @Repository
-public class RoleTgw implements IRoleTgw{
+public class RoleTdg implements IRoleTdg {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;

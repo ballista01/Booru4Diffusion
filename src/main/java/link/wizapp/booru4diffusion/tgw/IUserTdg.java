@@ -2,7 +2,7 @@ package link.wizapp.booru4diffusion.tgw;
 
 import link.wizapp.booru4diffusion.model.User;
 
-public interface IUserTgw {
+public interface IUserTdg {
     User findByUsername(String username);
 
     Boolean existsByUsername(String username);

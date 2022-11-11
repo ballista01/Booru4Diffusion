@@ -1,7 +1,7 @@
 package link.wizapp.booru4diffusion.security.services;
 
 import link.wizapp.booru4diffusion.model.User;
-import link.wizapp.booru4diffusion.tgw.IUserTgw;
+import link.wizapp.booru4diffusion.tgw.IUserTdg;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
     @Autowired
-    IUserTgw userTdg;
+    IUserTdg userTdg;
 
     @Override
     @Transactional

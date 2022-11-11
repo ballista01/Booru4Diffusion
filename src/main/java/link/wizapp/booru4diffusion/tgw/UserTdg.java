@@ -5,7 +5,6 @@ import link.wizapp.booru4diffusion.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
@@ -13,16 +12,15 @@ import org.springframework.stereotype.Repository;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.Objects;
-import java.util.Optional;
 
 @Repository
-public class UserTgw implements IUserTgw{
+public class UserTdg implements IUserTdg {
 
     @Autowired
     JdbcTemplate jdbcTemplate;
 
     @Autowired
-    RoleTgw roleTgw;
+    RoleTdg roleTgw;
 
     @Override
     public User findByUsername(String username) {
