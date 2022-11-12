@@ -11,6 +11,8 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -23,14 +25,26 @@ public class ImageTdg implements IImageTdg{
     @Override
     public int save(Image image) {
         try {
+            image.setTimestampCreated(new Timestamp(System.currentTimeMillis()));
+            image.setTimestampUpdated(new Timestamp(System.currentTimeMillis()));
             int res = 0;
-            String insertQuery = "INSERT INTO images (title, description, published) VALUES(?,?,?) RETURNING id";
+            String insertQuery = """
+INSERT INTO images
+(user_id, title, description, url, timestamp_created, timestamp_updated, published)
+VALUES
+(?,?,?,?,?,?,?)
+RETURNING id;
+""";
             GeneratedKeyHolder generatedKeyHolder = new GeneratedKeyHolder();
             res += jdbcTemplate.update(conn -> {
                 PreparedStatement preparedStatement = conn.prepareStatement(insertQuery, Statement.RETURN_GENERATED_KEYS);
-                preparedStatement.setString(1, image.getTitle());
-                preparedStatement.setString(2, image.getDescription());
-                preparedStatement.setBoolean(3, image.isPublished());
+                preparedStatement.setLong(1, image.getUserId());
+                preparedStatement.setString(2, image.getTitle());
+                preparedStatement.setString(3, image.getDescription());
+                preparedStatement.setString(4, image.getUrl());
+                preparedStatement.setTimestamp(5, image.getTimestampCreated());
+                preparedStatement.setTimestamp(6, image.getTimestampUpdated());
+                preparedStatement.setBoolean(7, image.isPublished());
                 return preparedStatement;
             }, generatedKeyHolder);
             long newId = Objects.requireNonNull(generatedKeyHolder.getKey()).longValue();
@@ -43,9 +57,15 @@ public class ImageTdg implements IImageTdg{
     }
 
     @Override
-    public int update(Image Image) {
-        return jdbcTemplate.update("UPDATE images SET title=?, description=?, published=? WHERE id=?",
-                new Object[] { Image.getTitle(), Image.getDescription(), Image.isPublished(), Image.getId() });
+    public int update(Image image) {
+        String updateQueryStr = """
+                UPDATE images SET user_id = ?, title=?, description=?, url=?, timestamp_updated=?, published=?
+                WHERE id=?
+                """;
+       image.setTimestampUpdated(new Timestamp(System.currentTimeMillis()));
+        return jdbcTemplate.update(updateQueryStr,
+                new Object[] { image.getUserId(), image.getTitle(), image.getDescription(), image.getUrl(),
+                        image.getTimestampUpdated(), image.isPublished(), image.getId() });
     }
 
     @Override

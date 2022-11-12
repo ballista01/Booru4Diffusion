@@ -1,6 +1,8 @@
 package link.wizapp.booru4diffusion.controller;
 
 import link.wizapp.booru4diffusion.model.Image;
+import link.wizapp.booru4diffusion.model.User;
+import link.wizapp.booru4diffusion.security.services.UserDetailsImpl;
 import link.wizapp.booru4diffusion.tgw.IImageTdg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,6 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -71,8 +76,10 @@ public class ImageController {
     @PostMapping("")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     public ResponseEntity<String> createImage(@RequestBody Image image){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         try {
-            imageTdg.save(new Image(image.getTitle(), image.getDescription(), false));
+            imageTdg.save(new Image(userDetails.getId(), image.getTitle(), image.getDescription(), image.getUrl(), false));
             return new ResponseEntity<>("Image created successfully", HttpStatus.OK);
         } catch(Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -82,9 +89,19 @@ public class ImageController {
     @PutMapping("{id}")
     public ResponseEntity<String> updateImage(@PathVariable("id") long id, @RequestBody Image image){
         try {
-            Image imageToUpdate = imageTdg.findById(image.getId());
+            Image imageToUpdate = imageTdg.findById(id);
+            log.info("Before getting userDetails");
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-            if(imageToUpdate != null){
+            if(imageToUpdate != null && image != null){
+                log.info(String.format("imageToUpdate.getUserId() = %d, userDetails.getId() = %d",
+                        imageToUpdate.getUserId(), userDetails.getId()));
+                if(imageToUpdate.getUserId() != userDetails.getId()){
+                    return new ResponseEntity<>("User is unauthorized to update the image.", HttpStatus.UNAUTHORIZED);
+                }
+                log.info("Passed User Id check");
+                imageToUpdate.setId(id);
                 imageToUpdate.setTitle(image.getTitle());
                 imageToUpdate.setDescription(image.getDescription());
                 imageToUpdate.setPublished(image.isPublished());

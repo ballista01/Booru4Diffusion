@@ -1,27 +1,42 @@
 package link.wizapp.booru4diffusion.model;
 
 
+import java.sql.Timestamp;
+import java.util.Date;
+
 public class Image {
 
     private long id;
+    private long userId;
     private String title;
     private String description;
+    private String url;
+    private Timestamp timestampCreated;
+    private Timestamp timestampUpdated;
     private boolean published;
 
     public Image() {
 
     }
 
-    public Image(long id, String title, String description, boolean published) {
-        this.id = id;
-        this.title = title;
-        this.description = description;
-        this.published = published;
-    }
+//    public Image(long id, String title, String description, boolean published) {
+//        this.id = id;
+//        this.title = title;
+//        this.description = description;
+//        this.published = published;
+//    }
 
-    public Image(String title, String description, boolean published) {
+//    public Image(String title, String description, boolean published) {
+//        this.title = title;
+//        this.description = description;
+//        this.published = published;
+//    }
+
+    public Image(long userId, String title, String description, String url, boolean published){
+        this.userId = userId;
         this.title = title;
         this.description = description;
+        this.url = url;
         this.published = published;
     }
 
@@ -62,4 +77,35 @@ public class Image {
         return "Image [id=" + id + ", title=" + title + ", desc=" + description + ", published=" + published + "]";
     }
 
+    public long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(long userId) {
+        this.userId = userId;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public Timestamp getTimestampCreated() {
+        return timestampCreated;
+    }
+
+    public void setTimestampCreated(Timestamp timestampCreated) {
+        this.timestampCreated = timestampCreated;
+    }
+
+    public Timestamp getTimestampUpdated() {
+        return timestampUpdated;
+    }
+
+    public void setTimestampUpdated(Timestamp timestampUpdated) {
+        this.timestampUpdated = timestampUpdated;
+    }
 }
