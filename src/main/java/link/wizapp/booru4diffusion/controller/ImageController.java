@@ -79,7 +79,14 @@ public class ImageController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         try {
-            imageTdg.save(new Image(userDetails.getId(), image.getTitle(), image.getDescription(), image.getUrl(), false));
+            Image imageToSave = new Image();
+            imageToSave.setUserId(userDetails.getId());
+            imageToSave.setTitle(image.getTitle());
+            imageToSave.setDescription(image.getDescription());
+            imageToSave.setUrl(image.getUrl());
+            imageToSave.setTags(image.getTags());
+            imageToSave.setPublished(image.isPublished());
+            imageTdg.save(imageToSave);
             return new ResponseEntity<>("Image created successfully", HttpStatus.OK);
         } catch(Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -87,6 +94,7 @@ public class ImageController {
     }
 
     @PutMapping("{id}")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     public ResponseEntity<String> updateImage(@PathVariable("id") long id, @RequestBody Image image){
         try {
             Image imageToUpdate = imageTdg.findById(id);
@@ -104,6 +112,8 @@ public class ImageController {
                 imageToUpdate.setId(id);
                 imageToUpdate.setTitle(image.getTitle());
                 imageToUpdate.setDescription(image.getDescription());
+                imageToUpdate.setUrl(image.getUrl());
+                imageToUpdate.setTags(image.getTags());
                 imageToUpdate.setPublished(image.isPublished());
                 imageTdg.update(imageToUpdate);
                 return new ResponseEntity<>("Image updated successfully!", HttpStatus.OK);

@@ -5,9 +5,9 @@ import link.wizapp.booru4diffusion.model.Image;
 import java.util.List;
 
 public interface IImageTdg {
-    int save(Image book);
+    int save(Image image);
 
-    int update(Image book);
+    int update(Image image);
 
     Image findById(Long id);
 

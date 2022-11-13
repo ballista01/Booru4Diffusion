@@ -1,6 +1,7 @@
 package link.wizapp.booru4diffusion.tgw;
 
 import link.wizapp.booru4diffusion.model.Image;
+import link.wizapp.booru4diffusion.model.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
@@ -15,12 +16,16 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Repository
 public class ImageTdg implements IImageTdg{
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    private TagTdg tagTdg;
 
     @Override
     public int save(Image image) {
@@ -50,22 +55,26 @@ RETURNING id;
             long newId = Objects.requireNonNull(generatedKeyHolder.getKey()).longValue();
             image.setId(newId);
 
-            return res;
+            return res + tagTdg.addTagsToImage(image.getTags(), image.getId());
         }  catch (DataAccessException e) {
             return -1;
         }
     }
 
+
+
     @Override
     public int update(Image image) {
+        int res = 0;
         String updateQueryStr = """
                 UPDATE images SET user_id = ?, title=?, description=?, url=?, timestamp_updated=?, published=?
                 WHERE id=?
                 """;
-       image.setTimestampUpdated(new Timestamp(System.currentTimeMillis()));
-        return jdbcTemplate.update(updateQueryStr,
+        image.setTimestampUpdated(new Timestamp(System.currentTimeMillis()));
+        res += jdbcTemplate.update(updateQueryStr,
                 new Object[] { image.getUserId(), image.getTitle(), image.getDescription(), image.getUrl(),
                         image.getTimestampUpdated(), image.isPublished(), image.getId() });
+        return res + tagTdg.addTagsToImage(image.getTags(), image.getId());
     }
 
     @Override
