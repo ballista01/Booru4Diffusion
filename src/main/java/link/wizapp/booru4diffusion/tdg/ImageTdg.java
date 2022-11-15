@@ -1,7 +1,6 @@
-package link.wizapp.booru4diffusion.tgw;
+package link.wizapp.booru4diffusion.tdg;
 
 import link.wizapp.booru4diffusion.model.Image;
-import link.wizapp.booru4diffusion.model.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
@@ -13,11 +12,9 @@ import org.springframework.stereotype.Repository;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.Timestamp;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Repository
 public class ImageTdg implements IImageTdg{
@@ -125,7 +122,6 @@ RETURNING id;
 
     @Override
     public List<Image> findByTagsName(Set<String> tags){
-
         StringBuilder sb = new StringBuilder();
         for(String tagName: tags){
             sb.append(String.format("'%s',", tagName));
@@ -145,6 +141,7 @@ RETURNING id;
         List<Image> resList =  jdbcTemplate.query(queryStr, BeanPropertyRowMapper.newInstance(Image.class));
         return resList;
     }
+
     @Override
     public int deleteAll() {
         return jdbcTemplate.update("DELETE from images");

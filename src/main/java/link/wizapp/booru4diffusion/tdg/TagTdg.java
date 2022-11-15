@@ -1,9 +1,8 @@
-package link.wizapp.booru4diffusion.tgw;
+package link.wizapp.booru4diffusion.tdg;
 
 import link.wizapp.booru4diffusion.model.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -37,13 +36,22 @@ public class TagTdg implements ITagTdg {
 //                    """, new TagRowMapper(), name);
 
 //            Singleton pattern: call getInstance() to use the same instance every time
-            Tag tag = jdbcTemplate.queryForObject("""
+//            Tag tag = jdbcTemplate.queryForObject("""
+//                    SELECT tags.id AS id, tags.name AS name, ARRAY_AGG(images_tags.image_id) as image_ids FROM tags
+//                    LEFT JOIN images_tags ON tags.id = images_tags.tag_id
+//                    WHERE tags.name = ?
+//                    GROUP BY tags.id;
+//                    """, TagRowMapper.getInstance(), name);
+//            return tag;
+
+//            Still not perfect, the variable tag is returned just after creation.
+//            We can inline this temp variable, it's clearer to read, and saves the effort of declaring it
+            return jdbcTemplate.queryForObject("""
                     SELECT tags.id AS id, tags.name AS name, ARRAY_AGG(images_tags.image_id) as image_ids FROM tags
                     LEFT JOIN images_tags ON tags.id = images_tags.tag_id
                     WHERE tags.name = ?
                     GROUP BY tags.id;
                     """, TagRowMapper.getInstance(), name);
-            return tag;
         } catch (IncorrectResultSizeDataAccessException e) {
             return null;
         }

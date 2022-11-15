@@ -1,11 +1,10 @@
-package link.wizapp.booru4diffusion.tgw;
+package link.wizapp.booru4diffusion.tdg;
 
 import link.wizapp.booru4diffusion.model.ERole;
 import link.wizapp.booru4diffusion.model.Role;
 import link.wizapp.booru4diffusion.model.User;
 import org.springframework.jdbc.core.RowMapper;
 
-import java.sql.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashSet;

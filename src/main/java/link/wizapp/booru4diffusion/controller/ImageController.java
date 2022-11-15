@@ -1,18 +1,15 @@
 package link.wizapp.booru4diffusion.controller;
 
 import link.wizapp.booru4diffusion.model.Image;
-import link.wizapp.booru4diffusion.model.User;
 import link.wizapp.booru4diffusion.security.services.UserDetailsImpl;
-import link.wizapp.booru4diffusion.security.services.UserDetailsServiceImpl;
-import link.wizapp.booru4diffusion.tgw.IImageTdg;
-import link.wizapp.booru4diffusion.tgw.ITagTdg;
+import link.wizapp.booru4diffusion.tdg.IImageTdg;
+import link.wizapp.booru4diffusion.tdg.ITagTdg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -55,8 +52,17 @@ public class ImageController {
                     images = imageTdg.findByUserId(userId, false);
                 }
             } else if(tags != null) {
-                // TODO: Implement findByTagsName
-                Set<String> tagSet = new HashSet<>(List.of(tags.split(" ")));
+//                Variable tags is parsed from REST API query, it may contain duplicate tag names.
+//                We can create a set to contain, remove duplicates, and pass as a variable.
+//                By replacing array with object, there will be more methods we can use,
+//                and the object type gives us hint on what to expect from the data within.
+//                For example, when I see a Set being a function parameter, I know elements within
+//                are distinct.
+                String[] tagsArr = tags.split(" ");
+                Set<String> tagSet = new HashSet<>();
+                for(String tagName: tagSet){
+                    tagSet.add(tagName);
+                }
                 images = imageTdg.findByTagsName(tagSet);
             }
             else images = imageTdg.findByPublished(true);

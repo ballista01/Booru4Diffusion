@@ -1,4 +1,4 @@
-package link.wizapp.booru4diffusion.tgw;
+package link.wizapp.booru4diffusion.tdg;
 
 import link.wizapp.booru4diffusion.model.Role;
 import link.wizapp.booru4diffusion.model.User;
