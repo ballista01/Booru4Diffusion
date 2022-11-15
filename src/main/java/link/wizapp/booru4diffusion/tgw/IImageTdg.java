@@ -3,6 +3,7 @@ package link.wizapp.booru4diffusion.tgw;
 import link.wizapp.booru4diffusion.model.Image;
 
 import java.util.List;
+import java.util.Set;
 
 public interface IImageTdg {
     int save(Image image);
@@ -11,6 +12,8 @@ public interface IImageTdg {
 
     Image findById(Long id);
 
+    List<Image> findByTagsName(Set<String> tags);
+
     int deleteById(Long id);
 
     List<Image> findAll();
@@ -18,6 +21,8 @@ public interface IImageTdg {
     List<Image> findByPublished(boolean published);
 
     List<Image> findByTitleContaining(String title);
+
+    List<Image> findByUserId(Long userId, boolean showNotPublished);
 
     int deleteAll();
 }

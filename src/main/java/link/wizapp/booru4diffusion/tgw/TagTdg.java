@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -119,6 +120,16 @@ public class TagTdg implements ITagTdg {
             }
         }
         return res;
+    }
+
+    @Override
+    public Set<Tag> findByImageId(Long id) {
+        return new HashSet<>(jdbcTemplate.query("""
+                SELECT tags.id, tags.name
+                FROM images
+                LEFT JOIN images_tags ON images.id = images_tags.image_id
+                LEFT JOIN tags ON images_tags.tag_id = tags.id
+                WHERE images.id = ?""", BeanPropertyRowMapper.newInstance(Tag.class), id));
     }
 
     public List<Long> getImageIds(Integer tagId) {

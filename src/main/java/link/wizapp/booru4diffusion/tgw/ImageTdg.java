@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Repository
 public class ImageTdg implements IImageTdg{
@@ -107,11 +108,43 @@ RETURNING id;
 
     @Override
     public List<Image> findByTitleContaining(String title) {
-        String q = "SELECT * from images WHERE title ILIKE '%" + title + "%'";
-
-        return jdbcTemplate.query(q, BeanPropertyRowMapper.newInstance(Image.class));
+        String queryStr = "SELECT * from images WHERE title ILIKE '%" + title + "%'";
+        return jdbcTemplate.query(queryStr, BeanPropertyRowMapper.newInstance(Image.class));
     }
 
+    @Override
+    public List<Image> findByUserId(Long userId, boolean showNotPublished){
+        String queryStr;
+        if(showNotPublished){
+            queryStr = "SELECT * FROM images WHERE user_id = ?";
+        } else {
+            queryStr = "SELECT * FROM images WHERE user_id = ? AND published = true";
+        }
+        return jdbcTemplate.query(queryStr, BeanPropertyRowMapper.newInstance(Image.class), userId);
+    }
+
+    @Override
+    public List<Image> findByTagsName(Set<String> tags){
+
+        StringBuilder sb = new StringBuilder();
+        for(String tagName: tags){
+            sb.append(String.format("'%s',", tagName));
+        }
+        if(sb.length()>0){
+            sb.setLength(sb.length()-1);
+        }
+        String inStr = sb.toString();
+        String queryStr = String.format("""
+                SELECT images.*
+                FROM tags
+                LEFT JOIN images_tags ON tags.id = images_tags.tag_id
+                LEFT JOIN images ON images_tags.image_id = images.id
+                WHERE tags.name IN (%s)
+                GROUP BY images.id;
+                """, inStr);
+        List<Image> resList =  jdbcTemplate.query(queryStr, BeanPropertyRowMapper.newInstance(Image.class));
+        return resList;
+    }
     @Override
     public int deleteAll() {
         return jdbcTemplate.update("DELETE from images");

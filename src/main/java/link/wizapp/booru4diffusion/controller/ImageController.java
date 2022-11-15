@@ -3,7 +3,9 @@ package link.wizapp.booru4diffusion.controller;
 import link.wizapp.booru4diffusion.model.Image;
 import link.wizapp.booru4diffusion.model.User;
 import link.wizapp.booru4diffusion.security.services.UserDetailsImpl;
+import link.wizapp.booru4diffusion.security.services.UserDetailsServiceImpl;
 import link.wizapp.booru4diffusion.tgw.IImageTdg;
+import link.wizapp.booru4diffusion.tgw.ITagTdg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +17,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/images")
@@ -23,17 +27,40 @@ public class ImageController {
 
     @Autowired
     IImageTdg imageTdg;
+    @Autowired
+    ITagTdg tagTdg;
     private static final Logger log = LoggerFactory.getLogger(ImageController.class);
 
     @GetMapping("")
-    public ResponseEntity<List<Image>> getAllImages(@RequestParam(required = false) String title) {
+    public ResponseEntity<List<Image>> getAllImages(
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) Long userId,
+            @RequestParam(required = false) String tags
+//            @RequestParam(required = false) Set<String> tags
+            ) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsImpl userDetails = null;
+        if(authentication.getPrincipal() instanceof UserDetailsImpl){
+            userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        }
         try {
             List<Image> images;
 
-            if (title == null)
-                images = imageTdg.findAll();
-            else
-                images = imageTdg.findByTitleContaining(title);
+            if (title != null) images = imageTdg.findByTitleContaining(title);
+            else if(userId != null) {
+                // TODO: Implement findByUserId
+                if(userDetails != null && userId.equals(userDetails.getId())){
+                    images = imageTdg.findByUserId(userId, true);
+                } else {
+                    images = imageTdg.findByUserId(userId, false);
+                }
+            } else if(tags != null) {
+                // TODO: Implement findByTagsName
+                Set<String> tagSet = new HashSet<>(List.of(tags.split(" ")));
+                images = imageTdg.findByTagsName(tagSet);
+            }
+            else images = imageTdg.findByPublished(true);
+
 
             if (images.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -48,7 +75,9 @@ public class ImageController {
     @GetMapping("/{id}")
     public ResponseEntity<Image> getImageById(@PathVariable("id") long id) {
         try {
+            // TODO: Don't display unpublished images if the userId of the image is not the current user
             Image image = imageTdg.findById(id);
+            image.setTags(tagTdg.findByImageId(id));
             if(image != null){
                 return new ResponseEntity<>(image, HttpStatus.OK);
             }else{
@@ -128,6 +157,7 @@ public class ImageController {
     @DeleteMapping("{id}")
     public ResponseEntity<String> deleteImage(@PathVariable("id") long id){
         try {
+            // TODO: Non admin/mod can only delete images his own image.
             int res = imageTdg.deleteById(id);
             if(res == 0){
                 return new ResponseEntity<>("Cannot find image with id: " + id, HttpStatus.NOT_FOUND);
@@ -140,6 +170,7 @@ public class ImageController {
     }
 
     @DeleteMapping("")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> deleteAllImages(){
         try{
             int res = imageTdg.deleteAll();

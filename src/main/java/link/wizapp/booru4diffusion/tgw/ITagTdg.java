@@ -10,4 +10,5 @@ public interface ITagTdg {
     int save(Tag tag);
     int addTagToImage(Integer tagId, Long imageId);
     int addTagsToImage(Set<Tag> tags, Long imageId);
+    Set<Tag> findByImageId(Long id);
 }
