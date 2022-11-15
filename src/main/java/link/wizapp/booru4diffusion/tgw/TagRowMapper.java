@@ -8,6 +8,20 @@ import java.sql.SQLException;
 
 
 public class TagRowMapper implements RowMapper<Tag> {
+    private static TagRowMapper instance = null;
+
+//    Use private constructor to prevent instantiating outside of class
+    private TagRowMapper(){
+        super();
+    }
+
+    public static TagRowMapper getInstance(){
+        if(instance == null){
+            instance = new TagRowMapper();
+        }
+        return instance;
+    }
+
     @Override
     public Tag mapRow(ResultSet rs, int rowNum) throws SQLException {
         Tag tag = new Tag();

@@ -11,6 +11,18 @@ import java.sql.SQLException;
 import java.util.HashSet;
 
 public class UserRowMapper implements RowMapper<User> {
+
+    private static UserRowMapper instance = null;
+    private UserRowMapper(){
+        super();
+    }
+
+    public static UserRowMapper getInstance(){
+        if(instance == null){
+            instance = new UserRowMapper();
+        }
+        return instance;
+    }
     @Override
     public User mapRow(ResultSet rs, int rowNum) throws SQLException {
         User user = new User();

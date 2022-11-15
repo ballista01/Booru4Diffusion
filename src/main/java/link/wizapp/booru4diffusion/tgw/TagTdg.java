@@ -28,18 +28,21 @@ public class TagTdg implements ITagTdg {
     @Override
     public Tag findByName(String name) {
         try {
+//            Old approach: crate new TagRowMapper class for every query. Costy.
+//            Tag tag = jdbcTemplate.queryForObject("""
+//                    SELECT tags.id AS id, tags.name AS name, ARRAY_AGG(images_tags.image_id) as image_ids FROM tags
+//                    LEFT JOIN images_tags ON tags.id = images_tags.tag_id
+//                    WHERE tags.name = ?
+//                    GROUP BY tags.id;
+//                    """, new TagRowMapper(), name);
+
+//            Singleton pattern: call getInstance() to use the same instance every time
             Tag tag = jdbcTemplate.queryForObject("""
                     SELECT tags.id AS id, tags.name AS name, ARRAY_AGG(images_tags.image_id) as image_ids FROM tags
                     LEFT JOIN images_tags ON tags.id = images_tags.tag_id
                     WHERE tags.name = ?
                     GROUP BY tags.id;
-                    """, new TagRowMapper(), name);
-//            Tag tag = jdbcTemplate.queryForObject("SELECT * FROM tags WHERE name = ?",
-//                    BeanPropertyRowMapper.newInstance(Tag.class), name);
-//            if(tag == null){
-//                return null;
-//            }
-//            tag.addImageIds(getImageIds(tag.getId()));
+                    """, TagRowMapper.getInstance(), name);
             return tag;
         } catch (IncorrectResultSizeDataAccessException e) {
             return null;
@@ -54,13 +57,7 @@ public class TagTdg implements ITagTdg {
                     LEFT JOIN images_tags ON tags.id = images_tags.tag_id
                     WHERE tags.id = ?
                     GROUP BY tags.id;
-                    """, new TagRowMapper(), id);
-//            Tag tag = jdbcTemplate.queryForObject("SELECT * FROM tags WHERE id = ?",
-//                    BeanPropertyRowMapper.newInstance(Tag.class), id);
-//            if(tag == null){
-//                return null;
-//            }
-//            tag.addImageIds(getImageIds(id));
+                    """, TagRowMapper.getInstance(), id);
             return tag;
         } catch (IncorrectResultSizeDataAccessException e) {
             return null;

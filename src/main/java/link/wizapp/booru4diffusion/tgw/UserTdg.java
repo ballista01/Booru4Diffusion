@@ -34,7 +34,7 @@ LEFT JOIN roles ON user_roles.role_id = roles.id
 WHERE username=?
 GROUP BY users.id;
 """,
-                    new UserRowMapper(), username);
+                    UserRowMapper.getInstance(), username);
             return user;
         } catch (IncorrectResultSizeDataAccessException e){
             return null;
@@ -62,7 +62,7 @@ LEFT JOIN roles ON user_roles.role_id = roles.id
 WHERE email=?
 GROUP BY users.id;
 """,
-                    new UserRowMapper(), email);
+                    UserRowMapper.getInstance(), email);
             return user;
         } catch (IncorrectResultSizeDataAccessException e){
             return null;
