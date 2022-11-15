@@ -14,6 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -60,9 +61,7 @@ public class ImageController {
 //                are distinct.
                 String[] tagsArr = tags.split(" ");
                 Set<String> tagSet = new HashSet<>();
-                for(String tagName: tagSet){
-                    tagSet.add(tagName);
-                }
+                Collections.addAll(tagSet, tagsArr);
                 images = imageTdg.findByTagsName(tagSet);
             }
             else images = imageTdg.findByPublished(true);
