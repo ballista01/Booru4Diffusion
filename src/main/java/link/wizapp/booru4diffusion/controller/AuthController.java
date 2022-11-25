@@ -60,7 +60,6 @@ public class AuthController {
                 .map(item -> item.getAuthority())
                 .collect(Collectors.toList());
 
-//        List<String> manualRoles = userDetails.
         return ResponseEntity.ok(new JwtResponse(jwt,
                 userDetails.getId(),
                 userDetails.getUsername(),
@@ -92,24 +91,24 @@ public class AuthController {
 
         if (strRoles == null) {
             Role userRole = roleTdg.findByName(ERole.ROLE_USER);
-            if(userRole == null) throw new RuntimeException("Error: Role is not found.");
+            if (userRole == null) throw new RuntimeException("Error: Role is not found.");
             roles.add(userRole);
         } else {
             strRoles.forEach(role -> {
                 switch (role) {
                     case "admin":
                         Role adminRole = roleTdg.findByName(ERole.ROLE_ADMIN);
-                        if(adminRole == null) throw new RuntimeException("Error: Role is not found.");
+                        if (adminRole == null) throw new RuntimeException("Error: Role is not found.");
                         roles.add(adminRole);
                         break;
                     case "mod":
                         Role modRole = roleTdg.findByName(ERole.ROLE_MODERATOR);
-                        if(modRole == null) throw new RuntimeException("Error: Role is not found.");
+                        if (modRole == null) throw new RuntimeException("Error: Role is not found.");
                         roles.add(modRole);
                         break;
                     default:
                         Role userRole = roleTdg.findByName(ERole.ROLE_USER);
-                        if(userRole == null) throw new RuntimeException("Error: Role is not found.");
+                        if (userRole == null) throw new RuntimeException("Error: Role is not found.");
                         roles.add(userRole);
                         break;
                 }

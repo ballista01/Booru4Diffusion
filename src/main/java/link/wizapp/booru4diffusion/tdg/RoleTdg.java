@@ -29,11 +29,12 @@ public class RoleTdg implements IRoleTdg {
             return null;
         }
     }
+
     public int save(Role role) {
         int res = 0;
         try {
             Role existingRole = findByName(role.getName());
-            if(existingRole!=null){
+            if (existingRole != null) {
                 return 0;
             }
 

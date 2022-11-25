@@ -93,7 +93,7 @@ public class TagTdg implements ITagTdg {
             return res;
         } catch (DuplicateKeyException e) {
             return 0;
-        } catch (DataAccessException e){
+        } catch (DataAccessException e) {
             return -1;
         }
     }
@@ -104,9 +104,9 @@ public class TagTdg implements ITagTdg {
             int res = jdbcTemplate.update("INSERT INTO images_tags (tag_id, image_id) VALUES (?,?)",
                     new Object[]{tagId, imageId});
             return res;
-        } catch (DuplicateKeyException e){
+        } catch (DuplicateKeyException e) {
             return 0;
-        } catch (DataAccessException e ){
+        } catch (DataAccessException e) {
             return -1;
         }
     }
@@ -114,13 +114,13 @@ public class TagTdg implements ITagTdg {
     @Override
     public int addTagsToImage(Set<Tag> tags, Long imageId) {
         int res = 0;
-        if(tags!=null && !tags.isEmpty()){
-            for(Tag tag: tags){
+        if (tags != null && !tags.isEmpty()) {
+            for (Tag tag : tags) {
                 int tagSaveRes = save(tag);
                 res += tagSaveRes;
                 // if inserted a new tag, tagSaveRes > 0, tag.id is updated, add the newly created tag to image
-                if(tagSaveRes > 0) res += addTagToImage(tag.getId(), imageId);
-                // otherwise the tag already exists, query for its id and add the tag to image.
+                if (tagSaveRes > 0) res += addTagToImage(tag.getId(), imageId);
+                    // otherwise the tag already exists, query for its id and add the tag to image.
                 else res += addTagToImage(findByName(tag.getName()).getId(), imageId);
             }
         }

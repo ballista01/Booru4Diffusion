@@ -17,7 +17,7 @@ import java.util.Objects;
 import java.util.Set;
 
 @Repository
-public class ImageTdg implements IImageTdg{
+public class ImageTdg implements IImageTdg {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -32,12 +32,12 @@ public class ImageTdg implements IImageTdg{
             image.setTimestampUpdated(new Timestamp(System.currentTimeMillis()));
             int res = 0;
             String insertQuery = """
-INSERT INTO images
-(user_id, title, description, url, timestamp_created, timestamp_updated, published)
-VALUES
-(?,?,?,?,?,?,?)
-RETURNING id;
-""";
+                    INSERT INTO images
+                    (user_id, title, description, url, timestamp_created, timestamp_updated, published)
+                    VALUES
+                    (?,?,?,?,?,?,?)
+                    RETURNING id;
+                    """;
             GeneratedKeyHolder generatedKeyHolder = new GeneratedKeyHolder();
             res += jdbcTemplate.update(conn -> {
                 PreparedStatement preparedStatement = conn.prepareStatement(insertQuery, Statement.RETURN_GENERATED_KEYS);
@@ -54,11 +54,10 @@ RETURNING id;
             image.setId(newId);
 
             return res + tagTdg.addTagsToImage(image.getTags(), image.getId());
-        }  catch (DataAccessException e) {
+        } catch (DataAccessException e) {
             return -1;
         }
     }
-
 
 
     @Override
@@ -70,8 +69,8 @@ RETURNING id;
                 """;
         image.setTimestampUpdated(new Timestamp(System.currentTimeMillis()));
         res += jdbcTemplate.update(updateQueryStr,
-                new Object[] { image.getUserId(), image.getTitle(), image.getDescription(), image.getUrl(),
-                        image.getTimestampUpdated(), image.isPublished(), image.getId() });
+                new Object[]{image.getUserId(), image.getTitle(), image.getDescription(), image.getUrl(),
+                        image.getTimestampUpdated(), image.isPublished(), image.getId()});
         return res + tagTdg.addTagsToImage(image.getTags(), image.getId());
     }
 
@@ -110,7 +109,7 @@ RETURNING id;
     }
 
     @Override
-    public List<Image> findByUserId(Long userId, boolean published){
+    public List<Image> findByUserId(Long userId, boolean published) {
 //        String queryStr;
 //        if(published){
 //            queryStr = "SELECT * FROM images WHERE user_id = ?";
@@ -123,13 +122,13 @@ RETURNING id;
     }
 
     @Override
-    public List<Image> findByTagsName(Set<String> tags){
+    public List<Image> findByTagsName(Set<String> tags) {
         StringBuilder sb = new StringBuilder();
-        for(String tagName: tags){
+        for (String tagName : tags) {
             sb.append(String.format("'%s',", tagName));
         }
-        if(sb.length()>0){
-            sb.setLength(sb.length()-1);
+        if (sb.length() > 0) {
+            sb.setLength(sb.length() - 1);
         }
         String inStr = sb.toString();
         String queryStr = String.format("""
@@ -140,7 +139,7 @@ RETURNING id;
                 WHERE tags.name IN (%s)
                 GROUP BY images.id;
                 """, inStr);
-        List<Image> resList =  jdbcTemplate.query(queryStr, BeanPropertyRowMapper.newInstance(Image.class));
+        List<Image> resList = jdbcTemplate.query(queryStr, BeanPropertyRowMapper.newInstance(Image.class));
         return resList;
     }
 
