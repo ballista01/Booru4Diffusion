@@ -22,7 +22,7 @@ public interface IImageTdg {
 
     List<Image> findByTitleContaining(String title);
 
-    List<Image> findByUserId(Long userId, boolean showNotPublished);
+    List<Image> findByUserId(Long userId, boolean published);
 
     int deleteAll();
 }

@@ -110,14 +110,16 @@ RETURNING id;
     }
 
     @Override
-    public List<Image> findByUserId(Long userId, boolean showNotPublished){
-        String queryStr;
-        if(showNotPublished){
-            queryStr = "SELECT * FROM images WHERE user_id = ?";
-        } else {
-            queryStr = "SELECT * FROM images WHERE user_id = ? AND published = true";
-        }
-        return jdbcTemplate.query(queryStr, BeanPropertyRowMapper.newInstance(Image.class), userId);
+    public List<Image> findByUserId(Long userId, boolean published){
+//        String queryStr;
+//        if(published){
+//            queryStr = "SELECT * FROM images WHERE user_id = ?";
+//        } else {
+//            queryStr = "SELECT * FROM images WHERE user_id = ? AND published = true";
+//        }
+//        return jdbcTemplate.query(queryStr, BeanPropertyRowMapper.newInstance(Image.class), userId);
+        String queryStr = "SELECT * FROM images WHERE user_id = ? AND published = ?";
+        return jdbcTemplate.query(queryStr, BeanPropertyRowMapper.newInstance(Image.class), userId, published);
     }
 
     @Override

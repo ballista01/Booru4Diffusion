@@ -1,19 +1,24 @@
 package link.wizapp.booru4diffusion.controller;
 
+import link.wizapp.booru4diffusion.Booru4DiffusionApplication;
 import link.wizapp.booru4diffusion.model.Image;
 import link.wizapp.booru4diffusion.security.services.UserDetailsImpl;
 import link.wizapp.booru4diffusion.tdg.IImageTdg;
 import link.wizapp.booru4diffusion.tdg.ITagTdg;
+import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -42,16 +47,21 @@ public class ImageController {
             userDetails = (UserDetailsImpl) authentication.getPrincipal();
         }
         try {
-            List<Image> images;
+            List<Image> images = null;
 
-            if (title != null) images = imageTdg.findByTitleContaining(title);
+//          Query by title
+            if (title != null) {
+                images = imageTdg.findByTitleContaining(title);
+            }
+//          Query by userId
             else if(userId != null) {
-                // TODO: Implement findByUserId
-                if(userDetails != null && userId.equals(userDetails.getId())){
+                if(userDetails != null){
                     images = imageTdg.findByUserId(userId, true);
-                } else {
-                    images = imageTdg.findByUserId(userId, false);
+                    if(userId.equals(userDetails.getId())){
+                        images.addAll(imageTdg.findByUserId(userId, false));
+                    }
                 }
+//          Query by tags
             } else if(tags != null) {
 //                Variable tags is parsed from REST API query, it may contain duplicate tag names.
 //                We can create a set to contain, remove duplicates, and pass as a variable.
@@ -64,10 +74,16 @@ public class ImageController {
                 Collections.addAll(tagSet, tagsArr);
                 images = imageTdg.findByTagsName(tagSet);
             }
-            else images = imageTdg.findByPublished(true);
+//          No query parameter, display all published images and unpublished images of the current user(if signed in)
+            else {
+                images = imageTdg.findByPublished(true);
+                if(userDetails!=null){
+                    images.addAll(imageTdg.findByUserId(userDetails.getId(), false));
+                }
+            }
 
 
-            if (images.isEmpty()) {
+            if (images == null || images.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
 
@@ -186,6 +202,34 @@ public class ImageController {
             }
         } catch (Exception e){
             return new ResponseEntity<>("Server error when attempting deleting all images!", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping(
+            value = "/samplefile",
+            produces = MediaType.IMAGE_PNG_VALUE
+    )
+    public @ResponseBody byte[] getSampleImageFile() {
+        try{
+            InputStream in = getClass().getResourceAsStream("/images/samplefile.png");
+            byte[] byteArr = in.readAllBytes();
+            return byteArr;
+        } catch (IOException e){
+            return null;
+        }
+    }
+
+    @GetMapping(
+            value = "/file/{id}",
+            produces = MediaType.IMAGE_PNG_VALUE
+    )
+    public @ResponseBody byte[] getImageFile(@PathVariable("id") long id) {
+        try {
+            InputStream in = getClass().getResourceAsStream(String.format("/images/%d.png", id));
+            byte[] byteArr = in.readAllBytes();
+            return byteArr;
+        } catch (IOException e){
+            return null;
         }
     }
 }
