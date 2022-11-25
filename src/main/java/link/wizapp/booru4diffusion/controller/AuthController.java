@@ -35,10 +35,10 @@ public class AuthController {
     AuthenticationManager authenticationManager;
 
     @Autowired
-    IUserTdg userTgw;
+    IUserTdg userTdg;
 
     @Autowired
-    IRoleTdg roleTgw;
+    IRoleTdg roleTdg;
 
     @Autowired
     PasswordEncoder encoder;
@@ -70,13 +70,13 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@RequestBody SignupRequest signUpRequest) {
-        if (userTgw.existsByUsername(signUpRequest.getUsername())) {
+        if (userTdg.existsByUsername(signUpRequest.getUsername())) {
             return ResponseEntity
                     .badRequest()
                     .body(new MessageResponse("Error: Username is already taken!"));
         }
 
-        if (userTgw.existsByEmail(signUpRequest.getEmail())) {
+        if (userTdg.existsByEmail(signUpRequest.getEmail())) {
             return ResponseEntity
                     .badRequest()
                     .body(new MessageResponse("Error: Email is already in use!"));
@@ -91,24 +91,24 @@ public class AuthController {
         Set<Role> roles = new HashSet<>();
 
         if (strRoles == null) {
-            Role userRole = roleTgw.findByName(ERole.ROLE_USER);
+            Role userRole = roleTdg.findByName(ERole.ROLE_USER);
             if(userRole == null) throw new RuntimeException("Error: Role is not found.");
             roles.add(userRole);
         } else {
             strRoles.forEach(role -> {
                 switch (role) {
                     case "admin":
-                        Role adminRole = roleTgw.findByName(ERole.ROLE_ADMIN);
+                        Role adminRole = roleTdg.findByName(ERole.ROLE_ADMIN);
                         if(adminRole == null) throw new RuntimeException("Error: Role is not found.");
                         roles.add(adminRole);
                         break;
                     case "mod":
-                        Role modRole = roleTgw.findByName(ERole.ROLE_MODERATOR);
+                        Role modRole = roleTdg.findByName(ERole.ROLE_MODERATOR);
                         if(modRole == null) throw new RuntimeException("Error: Role is not found.");
                         roles.add(modRole);
                         break;
                     default:
-                        Role userRole = roleTgw.findByName(ERole.ROLE_USER);
+                        Role userRole = roleTdg.findByName(ERole.ROLE_USER);
                         if(userRole == null) throw new RuntimeException("Error: Role is not found.");
                         roles.add(userRole);
                 }
@@ -116,7 +116,7 @@ public class AuthController {
         }
 
         user.setRoles(roles);
-        userTgw.save(user);
+        userTdg.save(user);
 
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }
