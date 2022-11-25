@@ -22,19 +22,6 @@ public class Image {
 
     }
 
-//    public Image(long id, String title, String description, boolean published) {
-//        this.id = id;
-//        this.title = title;
-//        this.description = description;
-//        this.published = published;
-//    }
-
-//    public Image(String title, String description, boolean published) {
-//        this.title = title;
-//        this.description = description;
-//        this.published = published;
-//    }
-
     public Image(long userId, String title, String description, String url, boolean published){
         this.userId = userId;
         this.title = title;

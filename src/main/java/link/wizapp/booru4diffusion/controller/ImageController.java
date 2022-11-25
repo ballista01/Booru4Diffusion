@@ -96,10 +96,9 @@ public class ImageController {
     @GetMapping("/{id}")
     public ResponseEntity<Image> getImageById(@PathVariable("id") long id) {
         try {
-            // TODO: Don't display unpublished images if the userId of the image is not the current user
             Image image = imageTdg.findById(id);
-            image.setTags(tagTdg.findByImageId(id));
             if(image != null){
+                image.setTags(tagTdg.findByImageId(id));
                 return new ResponseEntity<>(image, HttpStatus.OK);
             }else{
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -212,8 +211,7 @@ public class ImageController {
     public @ResponseBody byte[] getSampleImageFile() {
         try{
             InputStream in = getClass().getResourceAsStream("/images/samplefile.png");
-            byte[] byteArr = in.readAllBytes();
-            return byteArr;
+            return in.readAllBytes();
         } catch (IOException e){
             return null;
         }
@@ -226,8 +224,7 @@ public class ImageController {
     public @ResponseBody byte[] getImageFile(@PathVariable("id") long id) {
         try {
             InputStream in = getClass().getResourceAsStream(String.format("/images/%d.png", id));
-            byte[] byteArr = in.readAllBytes();
-            return byteArr;
+            return in.readAllBytes();
         } catch (IOException e){
             return null;
         }

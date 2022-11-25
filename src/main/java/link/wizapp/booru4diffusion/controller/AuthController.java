@@ -111,6 +111,7 @@ public class AuthController {
                         Role userRole = roleTdg.findByName(ERole.ROLE_USER);
                         if(userRole == null) throw new RuntimeException("Error: Role is not found.");
                         roles.add(userRole);
+                        break;
                 }
             });
         }
